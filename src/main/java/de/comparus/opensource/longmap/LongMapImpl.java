@@ -7,25 +7,42 @@ import java.util.List;
 
 public class LongMapImpl<V> implements LongMap<V>, Cloneable, Serializable {
 
-    private static final int DEFAULT_CAPACITY = 16;
-    private static final int MAXIMUM_CAPACITY = 1 << 30;
-    private static final float DEFAULT_LOAD_FACTOR = 0.75f;
+    static final int DEFAULT_CAPACITY = 16;
+    static final int MAXIMUM_CAPACITY = 1 << 30;
+    static final float DEFAULT_LOAD_FACTOR = 0.75f;
+    static final Entry<?>[] EMPTY_TABLE = {};
 
-    private Entry<V>[] table;
-    private final float loadFactor;
-    private int threshold;
-    private int size;
+    Entry<V>[] table = (Entry<V>[]) EMPTY_TABLE;
+    final float loadFactor;
+    int threshold;
+    int size;
 
     public LongMapImpl() {
         this(DEFAULT_CAPACITY, DEFAULT_LOAD_FACTOR);
     }
 
     public LongMapImpl(int capacity, float loadFactor) {
-        this.table = new Entry[capacity];
+        if (capacity < 0) {
+            throw new IllegalArgumentException("Illegal initial capacity: " + capacity);
+        }
+
+        if (capacity > MAXIMUM_CAPACITY) {
+            capacity = MAXIMUM_CAPACITY;
+        }
+
+        if (loadFactor <= 0 || Float.isNaN(loadFactor)) {
+            throw new IllegalArgumentException("Illegal load factor: " + loadFactor);
+        }
+
+        this.threshold = capacity;
         this.loadFactor = loadFactor;
     }
 
     public V put(long key, V value) {
+        if (table == EMPTY_TABLE) {
+            inflateTable(this.threshold);
+        }
+
         int hash = hash(key);
         int index = indexFor(hash, table.length);
         for (Entry<V> entry = table[index]; entry != null; entry = entry.next) {
@@ -49,6 +66,21 @@ public class LongMapImpl<V> implements LongMap<V>, Cloneable, Serializable {
         createEntry(hash, key, value, index);
     }
 
+    private void inflateTable(int toSize) {
+        int capacity = roundUpToPowerOf2(toSize);
+        threshold = (int) Math.min(capacity * loadFactor, MAXIMUM_CAPACITY + 1);
+        table = new Entry[capacity];
+    }
+
+    private int roundUpToPowerOf2(int number) {
+        int rounded = number >= MAXIMUM_CAPACITY
+                ? MAXIMUM_CAPACITY
+                : (rounded = Integer.highestOneBit(number)) != 0
+                    ? (Integer.bitCount(number) > 1) ? rounded << 1 : rounded
+                    : 1;
+        return rounded;
+    }
+
     private void resize(int newCapacity) {
         Entry[] oldTable = table;
         int oldCapacity = oldTable.length;
@@ -65,7 +97,7 @@ public class LongMapImpl<V> implements LongMap<V>, Cloneable, Serializable {
 
     private void transfer(Entry[] newTable) {
         int newCapacity = newTable.length;
-        for (Entry<V> entry: table) {
+        for (Entry<V> entry : table) {
             while (entry != null) {
                 Entry<V> next = entry.next;
                 int index = indexFor(entry.hash, newCapacity);
@@ -194,10 +226,10 @@ public class LongMapImpl<V> implements LongMap<V>, Cloneable, Serializable {
     public V[] values() {
         List<V> values = new ArrayList<>(size);
 
-        Entry<V>[] tab = table;
+        Entry[] tab = table;
         for (int i = 0; i < tab.length; i++) {
-            for (Entry<V> entry = tab[i]; entry != null; entry = entry.next) {
-                values.add(entry.value);
+            for (Entry entry = tab[i]; entry != null; entry = entry.next) {
+                values.add((V) entry.value);
             }
         }
 
@@ -221,7 +253,7 @@ public class LongMapImpl<V> implements LongMap<V>, Cloneable, Serializable {
         return hash & (length - 1);
     }
 
-    private static class Entry<V> {
+    static class Entry<V> {
         final long key;
         V value;
         Entry<V> next;
