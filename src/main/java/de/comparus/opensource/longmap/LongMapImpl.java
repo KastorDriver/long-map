@@ -295,5 +295,30 @@ public class LongMapImpl<V> implements LongMap<V>, Cloneable, Serializable {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
+        LongMapImpl<?> longMap = (LongMapImpl<?>) o;
+
+        if (Float.compare(longMap.loadFactor, loadFactor) != 0) return false;
+        if (threshold != longMap.threshold) return false;
+        if (size != longMap.size) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        return Arrays.equals(table, longMap.table);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+
+        for (int index = 0; index < table.length; index++) {
+            for (Entry<V> entry = table[index]; entry != null; entry = entry.next) {
+                hash += entry.hashCode();
+            }
+        }
+
+        return hash;
+    }
 }

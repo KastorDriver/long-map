@@ -230,16 +230,15 @@ public class LongMapImplTest {
         assertEquals(0, longMap.size());
     }
 
-//    @Test
-//    public void test() {
-//
-//        longMap.put(1, "one");
-//
-//        String[] arr = {};
-//
-//        longMap.values(arr);
-//        for (String str: arr) {
-//            System.out.println(str);
-//        };
-//    }
+    @Test
+    public void whenCompareTwoEqualsMapThenTheyHashCodesMustBeEquals() {
+        longMap.put(1, "One");
+        longMap.put(2, "Two");
+
+        LongMap<String> sameLongMap = new LongMapImpl<>();
+        sameLongMap.put(1, "One");
+        sameLongMap.put(2, "Two");
+
+        assertEquals(longMap.hashCode(), sameLongMap.hashCode());
+    }
 }
