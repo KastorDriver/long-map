@@ -1,12 +1,8 @@
 package de.comparus.opensource.longmap;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.lang.reflect.Array;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Predicate;
 
 import static org.junit.Assert.*;
@@ -185,13 +181,14 @@ public class LongMapImplTest {
 
     @Test
     public void whenRequestKeysByFilledMapThenReturnArrayWithFilledKeys() {
-        long[] expectedKeys = new long[2];
-        expectedKeys[0] = 1;
-        expectedKeys[1] = 2;
+        longMap.put(1, "one");
+        longMap.put(2, "two");
 
-        Predicate<Long> existsFromExpectedKeys = (key) -> {
-            for (long expectedKey: expectedKeys) {
-                if (key == expectedKey) {
+        long[] keys = longMap.keys();
+
+        Predicate<Long> existsInKeys = (expectedKey) -> {
+            for (long key: keys) {
+                if (expectedKey == key) {
                     return true;
                 }
             }
@@ -199,11 +196,29 @@ public class LongMapImplTest {
             return false;
         };
 
-        longMap.put(1, "one");
-        longMap.put(2, "two");
+        assertTrue(existsInKeys.test(1L));
+        assertTrue(existsInKeys.test(2L));
+    }
 
-        assertTrue(existsFromExpectedKeys.test(1L));
-        assertTrue(existsFromExpectedKeys.test(2L));
+    @Test
+    public void whenRequestValuesByFilledMapThenReturnArrayWithFilledValues() {
+        longMap.put(1, "One");
+        longMap.put(2, "Two");
+
+        final String[] values = longMap.values(new String[0]);
+
+        Predicate<String> existsInValues = (expectedValue) -> {
+            for (String value: values) {
+                if (value == value) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+
+        assertTrue(existsInValues.test("One"));
+        assertTrue(existsInValues.test("Two"));
     }
 
     @Test

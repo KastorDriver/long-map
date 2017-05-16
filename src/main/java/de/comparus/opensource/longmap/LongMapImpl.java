@@ -1,7 +1,6 @@
 package de.comparus.opensource.longmap;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -224,25 +223,22 @@ public class LongMapImpl<V> implements LongMap<V>, Cloneable, Serializable {
         return keys;
     }
 
-
-    //TODO is it possible?
+    //TODO is it possible with type erasure?
     public V[] values() {
         throw new UnsupportedOperationException();
     }
 
     public V[] values(V[] dest) {
-        V[] values = (V[]) Array.newInstance(dest.getClass().getComponentType(), size);
-        int valueIndex = 0;
+        List<V> values = new ArrayList<V>(size);
 
         Entry[] tab = table;
         for (int i = 0; i < tab.length; i++) {
             for (Entry entry = tab[i]; entry != null; entry = entry.next) {
-                values[valueIndex] = (V) entry.value;
-                valueIndex++;
+                values.add((V) entry.value);
             }
         }
 
-        return values;
+        return values.toArray(dest);
     }
 
     public long size() {
@@ -298,4 +294,6 @@ public class LongMapImpl<V> implements LongMap<V>, Cloneable, Serializable {
             return key + "=" + value;
         }
     }
+
+
 }
