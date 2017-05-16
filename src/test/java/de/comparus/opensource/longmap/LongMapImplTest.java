@@ -241,4 +241,16 @@ public class LongMapImplTest {
 
         assertEquals(longMap.hashCode(), sameLongMap.hashCode());
     }
+
+    @Test
+    public void whenCompareTwoDifferentMapThenTheyHashCodesMustBeDifferent() {
+        longMap.put(1, "One");
+        longMap.put(2, "Two");
+
+        LongMap<String> anotherLongMap = new LongMapImpl<>();
+        anotherLongMap.put(1, "Another One");
+        anotherLongMap.put(2, "Another Two");
+
+        assertNotEquals(longMap.hashCode(), anotherLongMap.hashCode());
+    }
 }
