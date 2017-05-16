@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import static org.junit.Assert.*;
 
@@ -69,7 +70,7 @@ public class LongMapImplTest {
     @Test
     public void whenRichThresoldLimitThenDoubleStorageSize() {
         longMap = new LongMapImpl<>(0, 0.75f);
-        assertEquals(LongMapImpl.EMPTY_TABLE, longMap.table);
+        assertArrayEquals(LongMapImpl.EMPTY_TABLE, longMap.table);
 
         longMap.put(1, "One");
         assertEquals(1, longMap.table.length);
@@ -152,6 +153,65 @@ public class LongMapImplTest {
         longMap.remove(1);
         longMap.remove(2);
         assertTrue(longMap.isEmpty());
+    }
+
+    @Test
+    public void whenCheckByNonExistKeyThenReturnFalse() {
+        assertFalse(longMap.containsKey(1));
+    }
+
+    @Test
+    public void whenCheckByExistKeyThenReturnFalse() {
+        longMap.put(1, "one");
+        assertTrue(longMap.containsKey(1));
+    }
+
+    @Test
+    public void whenCheckByNonExistValueThenReturnFalse() {
+        assertFalse(longMap.containsValue("one"));
+    }
+
+    @Test
+    public void whenCheckByExistValueThenReturnFalse() {
+        longMap.put(1, "one");
+        assertTrue(longMap.containsValue("one"));
+    }
+
+    @Test
+    public void whenRequestKeysByEmptyMapThenReturnEmptyArray() {
+        assertArrayEquals(new long[0], longMap.keys());
+    }
+
+    @Test
+    public void whenRequestKeysByFilledMapThenReturnArrayWithFilledKeys() {
+        long[] expectedKeys = new long[2];
+        expectedKeys[0] = 1;
+        expectedKeys[1] = 2;
+
+        Predicate<Long> existsFromExpectedKeys = (key) -> {
+            for (long expectedKey: expectedKeys) {
+                if (key == expectedKey) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+
+        longMap.put(1, "one");
+        longMap.put(2, "two");
+
+        assertTrue(existsFromExpectedKeys.test(1L));
+        assertTrue(existsFromExpectedKeys.test(2L));
+    }
+
+    @Test
+    public void whenClearMapThenSizeIsZero() {
+        longMap.put(1, "one");
+        longMap.put(2, "two");
+        longMap.clear();
+
+        assertEquals(0, longMap.size());
     }
 
     @Ignore
