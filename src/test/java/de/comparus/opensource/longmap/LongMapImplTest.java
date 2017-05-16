@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -214,10 +215,16 @@ public class LongMapImplTest {
         assertEquals(0, longMap.size());
     }
 
-    @Ignore
-    @Test
-    public void test() {
-        Map<String, String> map1 = new HashMap<>(0);
-        map1.put("One", "Two");
-    }
+//    @Test
+//    public void test() {
+//
+//        longMap.put(1, "one");
+//
+//        String[] arr = {};
+//
+//        longMap.values(arr);
+//        for (String str: arr) {
+//            System.out.println(str);
+//        };
+//    }
 }

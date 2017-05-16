@@ -1,6 +1,7 @@
 package de.comparus.opensource.longmap;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -210,30 +211,38 @@ public class LongMapImpl<V> implements LongMap<V>, Cloneable, Serializable {
 
     public long[] keys() {
         long[] keys = new long[size];
-        int nextKeyIndex = 0;
+        int keyIndex = 0;
 
         Entry[] tab = table;
         for (int i = 0; i < tab.length; i++) {
             for (Entry entry = tab[i]; entry != null; entry = entry.next) {
-                keys[nextKeyIndex] = entry.key;
-                nextKeyIndex++;
+                keys[keyIndex] = entry.key;
+                keyIndex++;
             }
         }
 
         return keys;
     }
 
+
+    //TODO is it possible?
     public V[] values() {
-        List<V> values = new ArrayList<>(size);
+        throw new UnsupportedOperationException();
+    }
+
+    public V[] values(V[] dest) {
+        V[] values = (V[]) Array.newInstance(dest.getClass().getComponentType(), size);
+        int valueIndex = 0;
 
         Entry[] tab = table;
         for (int i = 0; i < tab.length; i++) {
             for (Entry entry = tab[i]; entry != null; entry = entry.next) {
-                values.add((V) entry.value);
+                values[valueIndex] = (V) entry.value;
+                valueIndex++;
             }
         }
 
-        return (V[]) values.toArray();
+        return values;
     }
 
     public long size() {
