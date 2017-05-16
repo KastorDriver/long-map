@@ -234,10 +234,12 @@ public class LongMapImplTest {
     public void whenCompareTwoEqualsMapThenTheyHashCodesMustBeEquals() {
         longMap.put(1, "One");
         longMap.put(2, "Two");
+        longMap.put(3, null);
 
         LongMap<String> sameLongMap = new LongMapImpl<>();
         sameLongMap.put(1, "One");
         sameLongMap.put(2, "Two");
+        sameLongMap.put(3, null);
 
         assertEquals(longMap.hashCode(), sameLongMap.hashCode());
     }
@@ -252,5 +254,33 @@ public class LongMapImplTest {
         anotherLongMap.put(2, "Another Two");
 
         assertNotEquals(longMap.hashCode(), anotherLongMap.hashCode());
+    }
+
+    @Test
+    public void whenCompareTwoEqualsMapThenEqualsMustReturnTrue() {
+        longMap.put(1, "One");
+        longMap.put(2, "Two");
+        longMap.put(3, null);
+
+        LongMap<String> sameLongMap = new LongMapImpl<>();
+        sameLongMap.put(1, "One");
+        sameLongMap.put(2, "Two");
+        sameLongMap.put(3, null);
+
+        assertTrue(longMap.equals(sameLongMap));
+    }
+
+    @Test
+    public void whenCompareTwoDifferentMapThenEqualsMustReturnFalse() {
+        longMap.put(1, "One");
+        longMap.put(2, "Two");
+        longMap.put(3, null);
+
+        LongMap<String> anotherLongMap = new LongMapImpl<>();
+        anotherLongMap.put(1, "Another One");
+        anotherLongMap.put(2, "Another Two");
+        anotherLongMap.put(3, null);
+
+        assertFalse(longMap.equals(anotherLongMap));
     }
 }

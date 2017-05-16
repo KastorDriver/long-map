@@ -1,11 +1,10 @@
 package de.comparus.opensource.longmap;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class LongMapImpl<V> implements LongMap<V>, Cloneable, Serializable {
+public class LongMapImpl<V> implements LongMap<V> {
 
     static final int DEFAULT_CAPACITY = 16;
     static final int MAXIMUM_CAPACITY = 1 << 30;
@@ -284,7 +283,7 @@ public class LongMapImpl<V> implements LongMap<V>, Cloneable, Serializable {
 
         @Override
         public int hashCode() {
-            int result = (int) (key ^ (key >>> 32));
+            int result = Long.hashCode(key);
             result = 31 * result + (value != null ? value.hashCode() : 0);
             return result;
         }
@@ -301,12 +300,23 @@ public class LongMapImpl<V> implements LongMap<V>, Cloneable, Serializable {
         if (o == null || getClass() != o.getClass()) return false;
 
         LongMapImpl<?> longMap = (LongMapImpl<?>) o;
+        if (size() != longMap.size()) return false;
 
-        if (Float.compare(longMap.loadFactor, loadFactor) != 0) return false;
-        if (threshold != longMap.threshold) return false;
-        if (size != longMap.size) return false;
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        return Arrays.equals(table, longMap.table);
+        for (int index = 0; index < table.length; index++) {
+            for (Entry<V> entry = table[index]; entry != null; entry = entry.next) {
+                if (entry.value == null) {
+                    if (!(longMap.get(entry.key) == null && longMap.containsKey(entry.key))) {
+                        return false;
+                    }
+                } else {
+                    if (!entry.value.equals(longMap.get(entry.key))) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     @Override
