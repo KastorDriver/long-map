@@ -7,8 +7,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class LongMapImplTest {
 
@@ -17,19 +16,6 @@ public class LongMapImplTest {
     @Before
     public void before() {
         longMap = new LongMapImpl<>();
-    }
-
-    @Test
-    public void whenCreateWithoutArgumentsThenCreateWithDefaultParams() {
-        assertEquals(16, longMap.table.length);
-        assertEquals(0.75f, longMap.loadFactor, 0.1);
-    }
-
-    @Test
-    public void whenCreateWithArgumentsThenCreateWithPassedParams() {
-        longMap = new LongMapImpl<>(7, 0.5f);
-        assertEquals(7, longMap.table.length);
-        assertEquals(0.5f, longMap.loadFactor, 0.1);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -45,6 +31,39 @@ public class LongMapImplTest {
     @Test(expected = IllegalArgumentException.class)
     public void whenLoadFactorLessThanZeroThenThrowIllegalArgumentException() {
         longMap = new LongMapImpl<>(1, -1f);
+    }
+
+    @Test
+    public void whenCreateWithoutArgumentsThenCreateWithDefaultParams() {
+        assertEquals(16, longMap.threshold);
+        assertEquals(0.75f, longMap.loadFactor, 0.1);
+        assertEquals(0, longMap.table.length);
+    }
+
+    @Test
+    public void whenCreateWithArgumentsThenCreateWithPassedParams() {
+        longMap = new LongMapImpl<>(7, 0.5f);
+        assertEquals(7, longMap.threshold);
+        assertEquals(0.5f, longMap.loadFactor, 0.1);
+        assertEquals(0, longMap.table.length);
+    }
+
+    @Test
+    public void whenPutFirstElementThenInitializeStore() {
+        longMap = new LongMapImpl<>(8, 0.5f);
+        assertEquals(0, longMap.table.length);
+
+        longMap.put(1, "first");
+        assertEquals(8, longMap.table.length);
+    }
+
+    @Test
+    public void whenResizeStoreThenResizeToNearestPowerOfTwo() {
+        longMap = new LongMapImpl<>(7, 0.5f);
+        assertEquals(0, longMap.table.length);
+
+        longMap.put(1, "first");
+        assertEquals(8, longMap.table.length);
     }
 
     @Test
@@ -78,7 +97,62 @@ public class LongMapImplTest {
         assertNull(actualString);
     }
 
+    @Test
+    public void whenRemoveElementByKeyThenGetByThisKeyReturnNull() {
+        longMap.put(1, "one");
+        longMap.remove(1);
+        assertNull(longMap.get(1));
+    }
 
+    @Test
+    public void whenCreateNewMapThenSizeIsZero() {
+        assertEquals(0, longMap.size());
+    }
+
+    @Test
+    public void whenPutNewElementThenSizeIncreases() {
+        assertEquals(0, longMap.size());
+
+        longMap.put(1, "one");
+        assertEquals(1, longMap.size());
+
+        longMap.put(2, "two");
+        assertEquals(2, longMap.size());
+    }
+
+    @Test
+    public void whenRemoveElementThenSizeDecreases() {
+        longMap.put(1, "one");
+        longMap.put(2, "two");
+        assertEquals(2, longMap.size());
+
+        longMap.remove(1);
+        assertEquals(1, longMap.size());
+
+        longMap.remove(2);
+        assertEquals(0, longMap.size());
+    }
+
+    @Test
+    public void whenCreateNewMapThenItIsEmpty() {
+        assertTrue(longMap.isEmpty());
+    }
+
+    @Test
+    public void whenPutNewElementThenMapIsNotEmpty() {
+        longMap.put(1, "one");
+        assertFalse(longMap.isEmpty());
+    }
+
+    @Test
+    public void whenRemoveLastElementThenMapIsEmpty() {
+        longMap.put(1, "one");
+        longMap.put(2, "two");
+
+        longMap.remove(1);
+        longMap.remove(2);
+        assertTrue(longMap.isEmpty());
+    }
 
     @Ignore
     @Test
